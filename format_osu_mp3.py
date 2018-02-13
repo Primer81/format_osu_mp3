@@ -116,7 +116,7 @@ if __name__ == "__main__":
             continue # not a file of interest
         with open(song_path, 'rb') as zf:
             z = zipfile.ZipFile(zf)
-            extract_to = os.path.join(temp_path, z.filename)
+            extract_to = os.path.join(temp_path, os.path.basename(song_path)[:-4])
             z.extractall(extract_to)
         osu_file = find_osu_file(extract_to)
         if not osu_file:
