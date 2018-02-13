@@ -2,6 +2,8 @@
 
 import argparse
 import os
+import urllib.request
+
 import eyed3.id3
 import logging
 import zipfile
@@ -87,25 +89,30 @@ def get_keys_for_ver(ver):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--songs_path", help="path to your osu songs folder")
-    parser.add_argument("-k", "--key", help="your osu api key")
+    parser.add_argument("-p", "--songs_path", default=os.path.dirname(os.path.dirname(__file__)),
+                        help="path to your osu songs folder (default is script's parent directory)")
+    parser.add_argument("-k", "--key", default="",
+                        help="your osu api key. adding this will provide extra metadata to your mp3 files "
+                             "including genre and language")
     args = parser.parse_args()
-
+    # Validate inputs
     songs_path = args.songs_path
-    if not songs_path:
-        songs_path = os.path.dirname(__file__)
-    elif not os.path.exists(songs_path):
+    if not os.path.exists(songs_path):
         print("Provided path does not exist")
         exit(1)
-
+    key = args.key
+    if key and not urllib.request.urlopen(r"https://osu.ppy.sh/api/get_beatmap?k={}".format(key)):
+        print("Provided key is invalid")
+        exit(1)
+    # Create temp path to store extracted folders
     temp_path = os.path.join(os.path.dirname(__file__) + r"\temp")
     if not os.path.exists(temp_path):
         os.mkdir(temp_path)
-
+    # Create folder to store formatted mp3's
     formatted_dest = os.path.join(os.path.dirname(__file__), r"\formatted_mp3")
     if not os.path.exists(formatted_dest):
         os.mkdir(formatted_dest)
-
+    # Main loop
     for directory in os.listdir(songs_path):
         # Find the beatmap set ID
         song_path = os.path.join(songs_path, directory)
