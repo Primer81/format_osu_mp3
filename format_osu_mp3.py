@@ -87,15 +87,16 @@ def get_keys_for_ver(ver):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("songs_path", help="path to your osu songs folder")
-    parser.add_argument("list_song_id", help="any number of beatmap set ids you wish to process", nargs='*')
+    parser.add_argument("-p", "--songs_path", help="path to your osu songs folder")
+    parser.add_argument("-k", "--key", help="your osu api key")
     args = parser.parse_args()
 
     songs_path = args.songs_path
-    if not os.path.exists(songs_path):
+    if not songs_path:
+        songs_path = os.path.dirname(__file__)
+    elif not os.path.exists(songs_path):
         print("Provided path does not exist")
         exit(1)
-    list_song_id = set(args.list_song_id)
 
     temp_path = os.path.join(os.path.dirname(__file__) + r"\temp")
     if not os.path.exists(temp_path):
@@ -115,7 +116,7 @@ if __name__ == "__main__":
             continue # not a file of interest
         with open(song_path, 'rb') as zf:
             z = zipfile.ZipFile(zf)
-            extract_to = os.path.join(temp_path, z.filename) 
+            extract_to = os.path.join(temp_path, z.filename)
             z.extractall(extract_to)
         osu_file = find_osu_file(extract_to)
         if not osu_file:
@@ -131,9 +132,6 @@ if __name__ == "__main__":
         if not file_data[Keys.BEATMAP_SET_ID]:
             print("Failed to find beatmap set ID for:\t%s" % song_path)
             continue
-        if file_data[Keys.BEATMAP_SET_ID] not in list_song_id:
-            continue
-        list_song_id.remove(file_data[Keys.BEATMAP_SET_ID])
         # Find mp3, copy it, rename it, edit metadata
         mp3_file_path = os.path.join(song_path, file_data[Keys.AUDIO_FILENAME])
         if not os.path.exists(formatted_dest):
@@ -154,6 +152,3 @@ if __name__ == "__main__":
         audioFile.tag.artist = file_data[Keys.ARTIST]
         audioFile.tag.title = file_data[Keys.TITLE]
         audioFile.tag.save()
-        # Break if no more beatmap ids
-        if not list_song_id:
-            break
