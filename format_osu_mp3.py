@@ -187,7 +187,7 @@ if __name__ == "__main__":
         # Find mp3, copy it, rename it, edit metadata
         mp3_file_path = os.path.join(extract_to, file_data[KEYS.AUDIO_FILENAME])
         copy_mp3_name = (file_data[KEYS.ARTIST] + " - " + file_data[KEYS.TITLE] + ".mp3")\
-            .replace(':', "_").replace('\\','-')
+            .replace(':', "_").replace('\\','-').replace('*', '~')
         mp3_dest = os.path.join(formatted_dest, copy_mp3_name)
         copyfile(mp3_file_path, mp3_dest)
         # Load mp3, give it a tag if it doesn't already exists
@@ -211,6 +211,7 @@ if __name__ == "__main__":
         audioFile.tag.artist = file_data[KEYS.ARTIST]
         audioFile.tag.title = file_data[KEYS.TITLE]
         audioFile.tag.comments.set(comment + "Tags: " + file_data[KEYS.TAGS])
+        audioFile.tag.album = file_data[KEYS.CREATOR]
         audioFile.tag.save()
     # Delete temp directory
     shutil.rmtree(temp_path)
