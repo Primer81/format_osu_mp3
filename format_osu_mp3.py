@@ -205,7 +205,10 @@ if __name__ == "__main__":
         # Add front cover image
         if file_data[KEYS.BG_FILENAME]:
             bg_file_path = os.path.join(extract_to, file_data[KEYS.BG_FILENAME])
-            imageData = open(bg_file_path, "rb").read()
+            ext = bg_file_path[-3:]
+            bg_file_copy = os.path.join(extract_to, "cover." + ext)
+            copyfile(bg_file_path, bg_file_copy)
+            imageData = open(bg_file_copy, "rb").read()
             audioFile.tag.images.set(3, imageData, mime_type="")
         # Add other metadata and save
         audioFile.tag.artist = file_data[KEYS.ARTIST]
